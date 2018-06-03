@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
  *
  * @author ptzafos
  */
-public class CalculatorThread implements Callable<Integer> {
+public class CalculatorThread implements Callable<Double> {
 
 	int start;
 	int step;
@@ -24,8 +24,8 @@ public class CalculatorThread implements Callable<Integer> {
 	}
 
 	@Override
-	public Integer call() throws Exception {
-		return 2;
+	public Double call() throws Exception {
+		return 2.0;
 	}
 
 }

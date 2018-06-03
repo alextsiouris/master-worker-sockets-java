@@ -12,6 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
@@ -27,11 +28,20 @@ public class ServerThread implements Runnable {
 		this.serverSocket = serverSocket;
 	}
 
-	@Override
+    private static Double getResult(FutureTask<Double> result) {
+        try {
+            return result.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+    }
+
+    @Override
 	public void run() {
 		while (true) {
 			try {
-				ArrayList<FutureTask<Integer>> results = new ArrayList<FutureTask<Integer>>();
+				ArrayList<FutureTask<Double>> results = new ArrayList<FutureTask<Double>>();
 				Socket dataSocket = serverSocket.accept();
 				ObjectInputStream incomingStream = new ObjectInputStream(dataSocket.getInputStream());
 				int[] request = (int[]) incomingStream.readObject();
@@ -39,21 +49,20 @@ public class ServerThread implements Runnable {
 				int step = request.length / 3;
 				int lastStep = request.length % 3;
 				for (int i = 0; i < 3; i++) {
-					Callable<Integer> result;
+					Callable<Double> result;
 					if(i!=2) {
 						result = new CalculatorThread(i * step, step, request);
 					} else {
 						result = new CalculatorThread(i * step, lastStep, request);
 					}
-					results.add(new FutureTask<Integer>(result));
+					results.add(new FutureTask<>(result));
 					Thread t = new Thread(results.get(i));
 					t.start();
 				}
-				Float response = results.stream().reduce(0.0, (a,b) -> a+b);
+				Double response = results.stream().map(ServerThread::getResult).mapToDouble(Double::new).sum();
 				PrintWriter responseBuilder = new PrintWriter(outputStream, true);
 				responseBuilder.println(response);
 				dataSocket.close();
-
 			} catch (Exception exc) {
 				System.out.println("Error with incoming connection, keep on working...");
 				exc.printStackTrace();
