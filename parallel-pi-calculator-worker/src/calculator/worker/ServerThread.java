@@ -41,7 +41,7 @@ public class ServerThread implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				ArrayList<FutureTask<Double>> results = new ArrayList<FutureTask<Double>>();
+				ArrayList<FutureTask<Double>> results = new ArrayList<>();
 				Socket dataSocket = serverSocket.accept();
 				ObjectInputStream incomingStream = new ObjectInputStream(dataSocket.getInputStream());
 				int[] request = (int[]) incomingStream.readObject();
