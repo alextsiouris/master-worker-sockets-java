@@ -5,17 +5,33 @@
  */
 package calculator.master;
 
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+
 /**
- *
  * @author ptzafos
  */
 public class ParallelPiCalculatorMaster {
 
-	/**
-	 * @param args the command line arguments
-	 */
-	public static void main(String args[]) {
-		// TODO code application logic here
-	}
-	
+    /**
+     * @param args the command line arguments
+     */
+
+    private static final int[] PORT = {1208, 1209, 1210, 1211, 1212};
+
+    public static void main(String args[]) {
+        int[] slice = {1, 2, 3, 4, 6, 7};
+        Socket echoSocket;
+        ObjectOutputStream out;
+        try {
+            echoSocket = new Socket(InetAddress.getLocalHost(), PORT[2]);
+            out = new ObjectOutputStream(echoSocket.getOutputStream());
+            out.writeObject(slice);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
