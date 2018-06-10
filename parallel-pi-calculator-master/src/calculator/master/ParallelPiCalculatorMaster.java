@@ -5,10 +5,10 @@
  */
 package calculator.master;
 
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * @author ptzafos
@@ -23,21 +23,31 @@ public class ParallelPiCalculatorMaster {
 
     public static void main(String args[]) {
         //send the steps to each worker
+        Double piResult = 0.0;
         int N = 10000;
-        int numberOfworkers = 5;
+        int numberOfWorkers = 5;
         //5 workers 2000 each one;
-        Socket echoSocket;
+        Socket taskSocket;
         ObjectOutputStream out;
+        ArrayList<Socket> workerStreams = new ArrayList<>();
         try {
-            for (int i = 0; i < PORT.length; i++ ){
-                int[] slice = {i * N/numberOfworkers, i * N/numberOfworkers + N/numberOfworkers, N, i, numberOfworkers};
-                echoSocket = new Socket(InetAddress.getLocalHost(), PORT[i]);
-                out = new ObjectOutputStream(echoSocket.getOutputStream());
+            for (int i = 0; i < PORT.length; i++) {
+                int[] slice = {/*split slice*/i * N / numberOfWorkers,/*split slice*/ i * N / numberOfWorkers + N / numberOfWorkers,/*total split*/ N,/*worker number*/ i,/*total workers*/ numberOfWorkers};
+                taskSocket = new Socket(InetAddress.getLocalHost(), PORT[i]);
+                out = new ObjectOutputStream(taskSocket.getOutputStream());
                 out.writeObject(slice);
+                workerStreams.add(taskSocket);
+            }
+            for (Socket currSocket : workerStreams) {
+                InputStream is = currSocket.getInputStream();
+                BufferedReader in = new BufferedReader((new InputStreamReader(is)));
+                Double replyResult = Double.valueOf(in.readLine());
+                piResult += replyResult;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println(piResult);
     }
 
 }

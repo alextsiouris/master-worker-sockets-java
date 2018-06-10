@@ -17,6 +17,7 @@ public class ParallelPiCalculatorWorker {
 	/**
 	 * @param args the command line arguments
 	 */
+	//Array of workers port
 	private static final int[] PORT = {1208, 1209, 1210, 1211, 1212};
 
 	public static void main(String[] args) {

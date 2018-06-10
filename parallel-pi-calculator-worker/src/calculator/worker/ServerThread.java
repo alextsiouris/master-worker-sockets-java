@@ -20,7 +20,7 @@ import java.util.concurrent.FutureTask;
  */
 public class ServerThread implements Runnable {
 
-    ServerSocket serverSocket;
+    private ServerSocket serverSocket;
 
     public ServerThread(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
@@ -39,12 +39,14 @@ public class ServerThread implements Runnable {
     public void run() {
         while (true) {
             try {
+                //Create a list that handles the executions of calculation threads.
                 ArrayList<FutureTask<Double>> results = new ArrayList<>();
                 Socket dataSocket = serverSocket.accept();
                 ObjectInputStream incomingStream = new ObjectInputStream(dataSocket.getInputStream());
                 int[] request = (int[]) incomingStream.readObject();
                 OutputStream outputStream = dataSocket.getOutputStream();
                 int step = (request[1] - request[0]) / 3;
+                //last spawned thread takes the rest
                 int lastStep = (request[1] - request[0]) % 3;
                 for (int i = 0; i < 4; i++) {
                     Callable<Double> result;
@@ -57,7 +59,10 @@ public class ServerThread implements Runnable {
                     Thread t = new Thread(results.get(i));
                     t.start();
                 }
+                //Reduce the results of current worker(each instance of a serverThread is a worker that spawns new Threads.
                 Double response = results.stream().map(ServerThread::getResult).mapToDouble(Double::new).sum();
+                System.out.println(response);
+                //send worker results back to master
 				PrintWriter responseBuilder = new PrintWriter(outputStream, true);
 				responseBuilder.println(response);
 				dataSocket.close();

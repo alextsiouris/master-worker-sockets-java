@@ -23,14 +23,12 @@ public class CalculatorThread implements Callable<Double> {
     }
 
     @Override
+    //code used from http://www.science.smith.edu/dftwiki/index.php/CSC352:_Computing_Pi_in_Parallel_with_Java
     public Double call() throws Exception {
         Double result = 0.0;
-
         double deltaX = 1.0/total;
-
         for ( int i=start; i < start+step; i++ )
             result += f( i*deltaX );
-
         result *= deltaX;
         return result;
     }
