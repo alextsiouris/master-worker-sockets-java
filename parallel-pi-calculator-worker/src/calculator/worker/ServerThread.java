@@ -17,7 +17,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 /**
- *
  * @author ptzafos
  */
 public class ServerThread implements Runnable {
@@ -45,15 +44,16 @@ public class ServerThread implements Runnable {
                 Socket dataSocket = serverSocket.accept();
                 ObjectInputStream incomingStream = new ObjectInputStream(dataSocket.getInputStream());
                 int[] request = (int[]) incomingStream.readObject();
-                OutputStream outputStream = dataSocket.getOutputStream();
-                int step = request.length / 3;
-                int lastStep = request.length % 3;
-                for (int i = 0; i < 3; i++) {
+//                OutputStream outputStream = dataSocket.getOutputStream();
+                int step = (request[1] - request[0]) / 3;
+                int lastStep = (request[1] - request[0]) % 3;
+                for (int i = 0; i < 4; i++) {
                     Callable<Double> result;
-                    if(i!=2) {
-                        result = new CalculatorThread(i * step, step, request);
+                    if (i != 3) {
+                        result = new CalculatorThread((i + request[3]) * step, step, request[2]);
+                        System.out.println((i + request[3])* step );
                     } else {
-                        result = new CalculatorThread(i * step, lastStep, request);
+                        result = new CalculatorThread((i + request[3]) * step, lastStep, request[2]);
                     }
                     results.add(new FutureTask<>(result));
                     Thread t = new Thread(results.get(i));

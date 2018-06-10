@@ -14,20 +14,28 @@ public class CalculatorThread implements Callable<Double> {
 
     int start;
     int step;
-    int[] split;
+    int total;
 
-    public CalculatorThread(int start, int step, int[] split) {
+    public CalculatorThread(int start, int step, int total) {
         this.start = start;
         this.step = step;
-        this.split = split;
+        this.total = total;
     }
 
     @Override
     public Double call() throws Exception {
-        Double sum = 0.0;
-        for (int i = 0; i < split.length; i++) {
-            sum += split[i];
-        }
-        return sum;
+        Double result = 0.0;
+
+        double deltaX = 1.0/total;
+
+        for ( int i=start; i < start+step; i++ )
+            result += f( i*deltaX );
+
+        result *= deltaX;
+        return result;
+    }
+
+    public double f( double x ) {
+        return 4.0 / ( 1 + x*x );
     }
 }
