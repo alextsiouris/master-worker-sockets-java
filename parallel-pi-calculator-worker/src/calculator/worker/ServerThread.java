@@ -13,7 +13,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -44,26 +43,24 @@ public class ServerThread implements Runnable {
                 Socket dataSocket = serverSocket.accept();
                 ObjectInputStream incomingStream = new ObjectInputStream(dataSocket.getInputStream());
                 int[] request = (int[]) incomingStream.readObject();
-//                OutputStream outputStream = dataSocket.getOutputStream();
+                OutputStream outputStream = dataSocket.getOutputStream();
                 int step = (request[1] - request[0]) / 3;
                 int lastStep = (request[1] - request[0]) % 3;
                 for (int i = 0; i < 4; i++) {
                     Callable<Double> result;
                     if (i != 3) {
-                        result = new CalculatorThread((i + request[3]) * step, step, request[2]);
-                        System.out.println((i + request[3])* step );
+                        result = new CalculatorThread((request[3] * request[2] / request[4]) + (i * step), step, request[2]);
                     } else {
-                        result = new CalculatorThread((i + request[3]) * step, lastStep, request[2]);
+                        result = new CalculatorThread((request[3] * request[2] / request[4]) + (i * step), lastStep, request[2]);
                     }
                     results.add(new FutureTask<>(result));
                     Thread t = new Thread(results.get(i));
                     t.start();
                 }
                 Double response = results.stream().map(ServerThread::getResult).mapToDouble(Double::new).sum();
-                System.out.println(response);
-//				PrintWriter responseBuilder = new PrintWriter(outputStream, true);
-//				responseBuilder.println(response);
-//				dataSocket.close();
+				PrintWriter responseBuilder = new PrintWriter(outputStream, true);
+				responseBuilder.println(response);
+				dataSocket.close();
             } catch (Exception exc) {
                 System.out.println("Error with incoming connection, keep on working...");
                 exc.printStackTrace();

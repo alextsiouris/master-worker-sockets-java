@@ -24,13 +24,13 @@ public class ParallelPiCalculatorMaster {
     public static void main(String args[]) {
         //send the steps to each worker
         int N = 10000;
+        int numberOfworkers = 5;
         //5 workers 2000 each one;
         Socket echoSocket;
         ObjectOutputStream out;
         try {
             for (int i = 0; i < PORT.length; i++ ){
-                int[] slice = {i * N/5, i * N/5 + N/5, N, i};
-//                System.out.println(i * N/5 + "---" + (i * N/5 + N/5));
+                int[] slice = {i * N/numberOfworkers, i * N/numberOfworkers + N/numberOfworkers, N, i, numberOfworkers};
                 echoSocket = new Socket(InetAddress.getLocalHost(), PORT[i]);
                 out = new ObjectOutputStream(echoSocket.getOutputStream());
                 out.writeObject(slice);
